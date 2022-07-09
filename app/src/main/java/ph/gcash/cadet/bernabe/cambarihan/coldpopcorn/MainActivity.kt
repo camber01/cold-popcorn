@@ -4,6 +4,8 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
+import android.widget.EditText
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,6 +29,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var upcomingMovies: RecyclerView
     private lateinit var upcomingMoviesAdapter: MoviesAdapter
     private lateinit var upcomingMoviesLayoutMgr: LinearLayoutManager
+
+    private lateinit var btnSearch: Button
+    private lateinit var searchQuery: EditText
 
     private var popularMoviesPage = 1
     private var topRatedMoviesPage = 1
@@ -68,10 +73,17 @@ class MainActivity : AppCompatActivity() {
             false
         )
         upcomingMovies.layoutManager = upcomingMoviesLayoutMgr
-        upcomingMoviesAdapter = MoviesAdapter(mutableListOf()){ movie -> showMovieDetails(movie) }
+        upcomingMoviesAdapter = MoviesAdapter(mutableListOf()) { movie -> showMovieDetails(movie) }
         upcomingMovies.adapter = upcomingMoviesAdapter
 
         getUpcomingMovies()
+
+        btnSearch = binding.btnSearch
+        searchQuery = binding.searchQuery
+
+        btnSearch.setOnClickListener {
+            searchMovie(searchQuery.text.toString())
+        }
     }
 
     private fun getPopularMovies() {
@@ -142,8 +154,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onUpcomingMoviesFetched(movies: List<Movie>) {
-       upcomingMoviesAdapter.appendMovies(movies)
-       attachUpcomingMoviesOnScrollListener()
+        upcomingMoviesAdapter.appendMovies(movies)
+        attachUpcomingMoviesOnScrollListener()
     }
 
     private fun attachUpcomingMoviesOnScrollListener() {
@@ -167,8 +179,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showMovieDetails(movie: Movie) {
-       Log.d("Repository", "Movies: $movie")
-       val intent = Intent(this, MovieDetailsActivity::class.java)
+        val intent = Intent(this, MovieDetailsActivity::class.java)
         intent.putExtra(MOVIE_BACKDROP, movie.backdropPath)
         intent.putExtra(MOVIE_POSTER, movie.posterPath)
         intent.putExtra(MOVIE_TITLE, movie.title)
@@ -176,6 +187,13 @@ class MainActivity : AppCompatActivity() {
         intent.putExtra(MOVIE_RELEASE_DATE, movie.releaseDate)
         intent.putExtra(MOVIE_OVERVIEW, movie.overview)
         intent.putExtra(MOVIE_HOMEPAGE, movie.homepage)
+        startActivity(intent)
+    }
+
+    private fun searchMovie(searchQuery: String) {
+//          Log.d("Search", "Search-Content: $searchQuery")
+        val intent = Intent(this, SearchResultActivity::class.java)
+        intent.putExtra("query", searchQuery)
         startActivity(intent)
     }
 }
