@@ -1,14 +1,17 @@
 package ph.gcash.cadet.bernabe.cambarihan.coldpopcorn
 
+import android.app.SearchManager
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.adapter.MoviesAdapter
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.api.MoviesRepository
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.databinding.ActivitySearchResultBinding
@@ -78,4 +81,39 @@ class SearchResultActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.search_menu, menu)
+
+        val manager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        val searchMovie = menu?.findItem(R.id.search_button)
+        val searchView = searchMovie?.actionView as SearchView
+
+        searchView.setSearchableInfo(manager.getSearchableInfo(componentName))
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                searchView.clearFocus()
+                searchView.setQuery("",false)
+                searchView.queryHint = "Search Movies"
+                searchView.setIconifiedByDefault(false)
+
+                searchMovie(query.toString())
+
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return false
+            }
+        })
+        return true
+    }
+
+    private fun searchMovie(searchQuery: String) {
+//          Log.d("Search", "Search-Content: $searchQuery")
+        val intent = Intent(this, SearchResultActivity::class.java)
+        intent.putExtra("query", searchQuery)
+        startActivity(intent)
+    }
 }
