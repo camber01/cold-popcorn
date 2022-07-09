@@ -1,12 +1,13 @@
 package ph.gcash.cadet.bernabe.cambarihan.coldpopcorn
 
+import android.app.SearchManager
+import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.widget.Button
-import android.widget.EditText
+import android.view.Menu
+import androidx.appcompat.widget.SearchView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.adapter.MoviesAdapter
@@ -29,9 +30,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var upcomingMovies: RecyclerView
     private lateinit var upcomingMoviesAdapter: MoviesAdapter
     private lateinit var upcomingMoviesLayoutMgr: LinearLayoutManager
-
-    private lateinit var btnSearch: Button
-    private lateinit var searchQuery: EditText
 
     private var popularMoviesPage = 1
     private var topRatedMoviesPage = 1
@@ -78,12 +76,42 @@ class MainActivity : AppCompatActivity() {
 
         getUpcomingMovies()
 
-        btnSearch = binding.btnSearch
-        searchQuery = binding.searchQuery
+    }
 
-        btnSearch.setOnClickListener {
-            searchMovie(searchQuery.text.toString())
-        }
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.search_menu, menu)
+
+        val manager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        val searchMovie = menu?.findItem(R.id.search_button)
+        val searchView = searchMovie?.actionView as SearchView
+
+        searchView.setSearchableInfo(manager.getSearchableInfo(componentName))
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                searchView.clearFocus()
+                searchView.setQuery("",false)
+                searchView.queryHint = "Search Movies"
+                searchView.setIconifiedByDefault(false)
+
+                searchMovie(query.toString())
+
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return false
+            }
+        })
+        return true
+    }
+
+    private fun searchMovie(searchQuery: String) {
+//          Log.d("Search", "Search-Content: $searchQuery")
+        val intent = Intent(this, SearchResultActivity::class.java)
+        intent.putExtra("query", searchQuery)
+        startActivity(intent)
     }
 
     private fun getPopularMovies() {
@@ -187,13 +215,6 @@ class MainActivity : AppCompatActivity() {
         intent.putExtra(MOVIE_RELEASE_DATE, movie.releaseDate)
         intent.putExtra(MOVIE_OVERVIEW, movie.overview)
         intent.putExtra(MOVIE_HOMEPAGE, movie.homepage)
-        startActivity(intent)
-    }
-
-    private fun searchMovie(searchQuery: String) {
-//          Log.d("Search", "Search-Content: $searchQuery")
-        val intent = Intent(this, SearchResultActivity::class.java)
-        intent.putExtra("query", searchQuery)
         startActivity(intent)
     }
 }
