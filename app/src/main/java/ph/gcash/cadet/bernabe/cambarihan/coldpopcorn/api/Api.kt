@@ -1,9 +1,11 @@
 package ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.api
 
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.BuildConfig
+import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.GetMovieDetailsResponse
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.GetMoviesResponse
 import retrofit2.Call
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 const val API_KEY = BuildConfig.ApiKey
@@ -33,4 +35,10 @@ interface Api {
         @Query("api_key") apiKey: String = API_KEY,
         @Query("query") query: String
     ): Call<GetMoviesResponse>
+
+    @GET("movie/{id}")
+    fun getMovieDetails(
+        @Path("id") id: String,
+        @Query("api_key") apiKey: String = API_KEY
+    ): Call<GetMovieDetailsResponse>
 }
