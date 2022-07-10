@@ -3,12 +3,12 @@ package ph.gcash.cadet.bernabe.cambarihan.coldpopcorn
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
-import android.widget.ImageView
-import android.widget.RatingBar
-import android.widget.TextView
+import android.view.MenuItem
+import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
@@ -30,6 +30,7 @@ class MovieDetailsActivity : AppCompatActivity() {
     private lateinit var rating: RatingBar
     private lateinit var releaseDate: TextView
     private lateinit var overview: TextView
+    private lateinit var homepage: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,10 +72,12 @@ class MovieDetailsActivity : AppCompatActivity() {
         rating.rating = extras.getFloat(MOVIE_RATING, 0f) / 2
         releaseDate.text = extras.getString(MOVIE_RELEASE_DATE, "")
         overview.text = extras.getString(MOVIE_OVERVIEW, "")
+        homepage = extras.getString(MOVIE_HOMEPAGE, "")
     }
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val inflater = menuInflater
         inflater.inflate(R.menu.search_menu, menu)
+        inflater.inflate(R.menu.share_button, menu)
 
         val manager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
         val searchMovie = menu?.findItem(R.id.search_button)
@@ -101,8 +104,24 @@ class MovieDetailsActivity : AppCompatActivity() {
         return true
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.share_button -> {
+                val sharingIntent = Intent(Intent.ACTION_SEND)
+                sharingIntent.type = "*/*"
+
+                val shareBody = "Title: ${title.text} \nRelease Date: ${releaseDate.text}\nRating: ${rating.rating}\n\nOverview: ${overview.text}\n\n\n $homepage"
+                val shareSubject = "${title.text}"
+                sharingIntent.putExtra(Intent.EXTRA_TEXT, shareBody)
+
+                sharingIntent.putExtra(Intent.EXTRA_SUBJECT, shareSubject)
+                startActivity(Intent.createChooser(sharingIntent, "Share using"))
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     private fun searchMovie(searchQuery: String) {
-//          Log.d("Search", "Search-Content: $searchQuery")
         val intent = Intent(this, SearchResultActivity::class.java)
         intent.putExtra("query", searchQuery)
         startActivity(intent)
