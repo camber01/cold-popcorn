@@ -12,8 +12,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.api.MoviesRepository
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.databinding.ActivityMovieDetailsBinding
+import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.GetMovieDetailsResponse
+import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.Movie
 
+const val MOVIE_ID = "extra_movie_id"
 const val MOVIE_BACKDROP = "extra_movie_backdrop"
 const val MOVIE_POSTER = "extra_movie_poster"
 const val MOVIE_TITLE = "extra_movie_title"
@@ -47,33 +51,48 @@ class MovieDetailsActivity : AppCompatActivity() {
         val extras = intent.extras
 
         if (extras != null) {
-            populateDetails(extras)
+            val movieId = extras.getLong(MOVIE_ID, 0).toString()
+            getMovieDetails(movieId)
         } else {
             finish()
         }
     }
 
-    private fun populateDetails(extras: Bundle) {
-        extras.getString(MOVIE_BACKDROP)?.let { backdropPath ->
+    private fun getMovieDetails(id: String) {
+        MoviesRepository.getMovieDetails(
+            id,
+            ::onMovieDetailsFetched,
+            ::onError
+        )
+    }
+
+    private fun onMovieDetailsFetched(
+        backdropPath: String, posterPath:String,
+        titleExtra: String, ratingExtra: Float,
+        releaseDateExtra: String, overViewExtra: String,
+        homepageExtra: String)
+        {
             Glide.with(this)
-                .load("https://image.tmdb.org/t/p/w1280$backdropPath")
+                .load("https://image.tmdb.org/t/p/w1280${backdropPath}")
                 .transform(CenterCrop())
                 .into(backdrop)
-        }
 
-        extras.getString(MOVIE_POSTER)?.let { posterPath ->
             Glide.with(this)
-                .load("https://image.tmdb.org/t/p/w342$posterPath")
+                .load("https://image.tmdb.org/t/p/w342${posterPath}")
                 .transform(CenterCrop())
                 .into(poster)
-        }
 
-        title.text = extras.getString(MOVIE_TITLE, "")
-        rating.rating = extras.getFloat(MOVIE_RATING, 0f) / 2
-        releaseDate.text = extras.getString(MOVIE_RELEASE_DATE, "")
-        overview.text = extras.getString(MOVIE_OVERVIEW, "")
-        homepage = extras.getString(MOVIE_HOMEPAGE, "")
+            title.text = titleExtra
+            rating.rating = ratingExtra.div(2)
+            releaseDate.text = releaseDateExtra
+            overview.text = overViewExtra
+            homepage = homepageExtra
     }
+
+    private fun onError() {
+        Toast.makeText(this, getString(R.string.error_fetch_movies), Toast.LENGTH_SHORT).show()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val inflater = menuInflater
         inflater.inflate(R.menu.search_menu, menu)

@@ -1,5 +1,7 @@
 package ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.api
 
+import android.util.Log
+import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.GetMovieDetailsResponse
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.GetMoviesResponse
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.Movie
 import retrofit2.Call
@@ -35,17 +37,14 @@ object MoviesRepository {
 
                        if (responseBody != null) {
                            onSuccess.invoke(responseBody.movies)
-//                           Log.d("Repository", "Movies: ${responseBody.movies}")
                        } else {
                            onError.invoke()
-//                           Log.d("Repository", "Failed to get response")
                        }
                    }
                 }
 
                 override fun onFailure(call: Call<GetMoviesResponse>, t: Throwable) {
                     onError.invoke()
-//                   Log.e("Repository", "onFailure", t)
                 }
             })
     }
@@ -135,6 +134,48 @@ object MoviesRepository {
                 }
 
                 override fun onFailure(call: Call<GetMoviesResponse>, t: Throwable) {
+                    onError.invoke()
+                }
+            })
+    }
+
+    fun getMovieDetails(
+        id: String,
+        onSuccess: (backdropPath: String, posterPath:String,
+                    title: String, rating: Float,
+                    releaseDate: String, overView: String,
+                    homepage: String) -> Unit,
+        onError: () -> Unit){
+        api.getMovieDetails(id = id)
+            .enqueue(object : Callback<GetMovieDetailsResponse>{
+                override fun onResponse(
+                    call: Call<GetMovieDetailsResponse>,
+                    response: Response<GetMovieDetailsResponse>
+                ) {
+                    Log.d("RESPONSE", "success $response")
+                    if (response.isSuccessful) {
+                        val responseBody = response.body()
+
+                        if (responseBody != null) {
+                            onSuccess.invoke(
+                                responseBody.backdropPath,
+                                responseBody.posterPath,
+                                responseBody.title,
+                                responseBody.rating,
+                                responseBody.releaseDate,
+                                responseBody.overview,
+                                responseBody.homepage
+                            )
+                        }
+                        else{
+                            onError.invoke()
+                        }
+                    }
+                    else{
+                        onError.invoke()
+                    }
+                }
+                override fun onFailure(call: Call<GetMovieDetailsResponse>, t: Throwable) {
                     onError.invoke()
                 }
             })
