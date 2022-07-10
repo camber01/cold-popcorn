@@ -152,7 +152,6 @@ object MoviesRepository {
                     call: Call<GetMovieDetailsResponse>,
                     response: Response<GetMovieDetailsResponse>
                 ) {
-                    Log.d("RESPONSE", "success $response")
                     if (response.isSuccessful) {
                         val responseBody = response.body()
 

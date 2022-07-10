@@ -18,13 +18,6 @@ import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.GetMovieDetailsRespon
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.Movie
 
 const val MOVIE_ID = "extra_movie_id"
-const val MOVIE_BACKDROP = "extra_movie_backdrop"
-const val MOVIE_POSTER = "extra_movie_poster"
-const val MOVIE_TITLE = "extra_movie_title"
-const val MOVIE_RATING = "extra_movie_rating"
-const val MOVIE_RELEASE_DATE = "extra_movie_release_date"
-const val MOVIE_OVERVIEW = "extra_movie_overview"
-const val MOVIE_HOMEPAGE = "extra_movie_homepage"
 
 class MovieDetailsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMovieDetailsBinding
