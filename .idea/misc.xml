@@ -6,9 +6,11 @@
         <entry key="../../../../layout/custom_preview.xml" value="0.12284701114488349" />
         <entry key="app/src/main/res/drawable/search_icon.xml" value="0.121" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
-        <entry key="app/src/main/res/layout/activity_movie_details.xml" value="0.2265625" />
+        <entry key="app/src/main/res/layout/activity_movie_details.xml" value="0.22" />
+        <entry key="app/src/main/res/layout/activity_movie_trailer.xml" value="0.2265625" />
         <entry key="app/src/main/res/layout/activity_search_result.xml" value="0.2265625" />
         <entry key="app/src/main/res/layout/item_movie.xml" value="0.22552083333333334" />
+        <entry key="app/src/main/res/layout/video_view.xml" value="0.22552083333333334" />
         <entry key="app/src/main/res/menu/main_menu.xml" value="0.22552083333333334" />
         <entry key="app/src/main/res/menu/menu_search.xml" value="0.17239583333333333" />
         <entry key="app/src/main/res/menu/search_menu.xml" value="0.2265625" />

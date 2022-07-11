@@ -1,9 +1,7 @@
 package ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.api
 
 import android.util.Log
-import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.GetMovieDetailsResponse
-import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.GetMoviesResponse
-import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.Movie
+import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -175,6 +173,36 @@ object MoviesRepository {
                     }
                 }
                 override fun onFailure(call: Call<GetMovieDetailsResponse>, t: Throwable) {
+                    onError.invoke()
+                }
+            })
+    }
+
+    fun getMovieTrailer(
+        id: String,
+        onSuccess: (trailer: List<Trailer>) -> Unit,
+        onError: () -> Unit
+    ){
+        api.getMovieTrailer(id = id)
+            .enqueue(object : Callback<GetTrailerResponse> {
+                override fun onResponse(
+                    call: Call<GetTrailerResponse>,
+                    response: Response<GetTrailerResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        val responseBody = response.body()
+
+                        if (responseBody != null) {
+                            onSuccess.invoke(responseBody.trailer)
+                        } else {
+                            onError.invoke()
+                        }
+                    } else {
+                        onError.invoke()
+                    }
+                }
+
+                override fun onFailure(call: Call<GetTrailerResponse>, t: Throwable) {
                     onError.invoke()
                 }
             })

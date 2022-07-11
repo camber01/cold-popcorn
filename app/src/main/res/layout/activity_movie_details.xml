@@ -93,5 +93,16 @@
             app:layout_constraintStart_toStartOf="@id/movie_poster_card"
             app:layout_constraintTop_toBottomOf="@id/movie_poster_card" />
 
+
+        <Button
+            android:id="@+id/watch_trailer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/watch_movie_trailer"
+            android:layout_margin="20dp"
+            app:layout_constraintStart_toStartOf="@id/movie_overview"
+            app:layout_constraintEnd_toEndOf="@id/movie_overview"
+            app:layout_constraintTop_toBottomOf="@id/movie_overview"
+            app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

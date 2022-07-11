@@ -3,6 +3,7 @@ package ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.api
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.BuildConfig
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.GetMovieDetailsResponse
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.GetMoviesResponse
+import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.GetTrailerResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -41,4 +42,10 @@ interface Api {
         @Path("id") id: String,
         @Query("api_key") apiKey: String = API_KEY
     ): Call<GetMovieDetailsResponse>
+
+    @GET("movie/{id}/videos")
+    fun getMovieTrailer(
+        @Path("id") id: String,
+        @Query("api_key") apiKey: String = API_KEY
+    ): Call<GetTrailerResponse>
 }
