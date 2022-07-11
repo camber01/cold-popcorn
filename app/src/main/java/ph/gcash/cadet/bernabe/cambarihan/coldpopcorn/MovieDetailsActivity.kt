@@ -11,11 +11,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
-import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.adapter.VideoAdapter
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.api.MoviesRepository
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.databinding.ActivityMovieDetailsBinding
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.Trailer
-import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.YouTubeVideos
 
 const val MOVIE_ID = "extra_movie_id"
 const val MOVIE_TITLE = "extra_movie_title"
