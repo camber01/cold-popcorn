@@ -4,7 +4,6 @@ import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
@@ -12,12 +11,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.adapter.VideoAdapter
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.api.MoviesRepository
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.databinding.ActivityMovieDetailsBinding
-import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.GetMovieDetailsResponse
-import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.Movie
+import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.Trailer
+import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.YouTubeVideos
 
 const val MOVIE_ID = "extra_movie_id"
+const val MOVIE_TITLE = "extra_movie_title"
 
 class MovieDetailsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMovieDetailsBinding
@@ -28,6 +29,8 @@ class MovieDetailsActivity : AppCompatActivity() {
     private lateinit var releaseDate: TextView
     private lateinit var overview: TextView
     private lateinit var homepage: String
+    private lateinit var watchTrailer: Button
+    private lateinit var shareTrailer: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,15 +43,25 @@ class MovieDetailsActivity : AppCompatActivity() {
         rating = binding.movieRating
         releaseDate = binding.movieReleaseDate
         overview = binding.movieOverview
+        watchTrailer = binding.watchTrailer
 
         val extras = intent.extras
 
         if (extras != null) {
             val movieId = extras.getLong(MOVIE_ID, 0).toString()
             getMovieDetails(movieId)
+            getMovieTrailer(movieId)
+
+            watchTrailer.setOnClickListener {
+                val intent = Intent(this, MovieTrailerActivity::class.java)
+                intent.putExtra(MOVIE_ID, movieId)
+                intent.putExtra(MOVIE_TITLE, title.text)
+                startActivity(intent)
+            }
         } else {
             finish()
         }
+
     }
 
     private fun getMovieDetails(id: String) {
@@ -80,6 +93,20 @@ class MovieDetailsActivity : AppCompatActivity() {
             releaseDate.text = releaseDateExtra
             overview.text = overViewExtra
             homepage = homepageExtra
+    }
+
+    private fun getMovieTrailer(id: String) {
+        MoviesRepository.getMovieTrailer(
+            id,
+            ::onMovieTrailerFetched,
+            ::onError
+        )
+    }
+
+    private fun onMovieTrailerFetched(trailer: List<Trailer>)
+    {
+//        Log.d("Trailer", trailer.get(0).key)
+        shareTrailer = "https://www.youtube.com/embed/${trailer[0].key}"
     }
 
     private fun onError() {
@@ -122,7 +149,12 @@ class MovieDetailsActivity : AppCompatActivity() {
                 val sharingIntent = Intent(Intent.ACTION_SEND)
                 sharingIntent.type = "*/*"
 
-                val shareBody = "Title: ${title.text} \nRelease Date: ${releaseDate.text}\nRating: ${rating.rating}\n\nOverview: ${overview.text}\n\n\n $homepage"
+                val shareBody = "Title: ${title.text}" +
+                        "\nRelease Date: ${releaseDate.text}\n" +
+                        "Rating: ${rating.rating}\n\n" +
+                        "Overview: ${overview.text}\n\n\n" +
+                        "Official Site: $homepage \n\n\n" +
+                        "Watch Trailer here: $shareTrailer"
                 val shareSubject = "${title.text}"
                 sharingIntent.putExtra(Intent.EXTRA_TEXT, shareBody)
 
