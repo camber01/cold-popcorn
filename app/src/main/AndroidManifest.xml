@@ -33,6 +33,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 
+        <meta-data android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_application_id"/>
+
+        <meta-data android:name="com.facebook.sdk.ClientToken"
+            android:value="@string/facebook_application_id" />
+        <provider
+            android:authorities="com.facebook.app.FacebookContentProvider5161033180677768"
+            android:name="com.facebook.FacebookContentProvider"
+            android:exported="true" />
+    </application>
 </manifest>
