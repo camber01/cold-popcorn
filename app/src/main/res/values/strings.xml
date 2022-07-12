@@ -11,4 +11,6 @@
     <string name="search_result">Search Result for: </string>
     <string name="share">Share</string>
     <string name="watch_movie_trailer">Watch Movie Trailer</string>
+    <string name="facebook_application_id">5161033180677768</string>
+    <string name="facebook_login_protocol_scheme">fb5161033180677768</string>
 </resources>

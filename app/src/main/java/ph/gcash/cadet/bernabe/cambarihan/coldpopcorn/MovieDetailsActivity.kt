@@ -1,11 +1,15 @@
 package ph.gcash.cadet.bernabe.cambarihan.coldpopcorn
 
+import android.annotation.SuppressLint
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.TextUtils
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -14,11 +18,13 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.api.MoviesRepository
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.databinding.ActivityMovieDetailsBinding
 import ph.gcash.cadet.bernabe.cambarihan.coldpopcorn.model.Trailer
+import java.util.*
 
 const val MOVIE_ID = "extra_movie_id"
 const val MOVIE_TITLE = "extra_movie_title"
 
 class MovieDetailsActivity : AppCompatActivity() {
+    private val myPick: Int = 1
     private lateinit var binding: ActivityMovieDetailsBinding
     private lateinit var backdrop: ImageView
     private lateinit var poster: ImageView
@@ -28,7 +34,9 @@ class MovieDetailsActivity : AppCompatActivity() {
     private lateinit var overview: TextView
     private lateinit var homepage: String
     private lateinit var watchTrailer: Button
-    private lateinit var shareTrailer: String
+    private var shareTrailer: String = ""
+    private lateinit var posterUrl: String
+    private lateinit var id: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,13 +57,8 @@ class MovieDetailsActivity : AppCompatActivity() {
             val movieId = extras.getLong(MOVIE_ID, 0).toString()
             getMovieDetails(movieId)
             getMovieTrailer(movieId)
+            id = movieId
 
-            watchTrailer.setOnClickListener {
-                val intent = Intent(this, MovieTrailerActivity::class.java)
-                intent.putExtra(MOVIE_ID, movieId)
-                intent.putExtra(MOVIE_TITLE, title.text)
-                startActivity(intent)
-            }
         } else {
             finish()
         }
@@ -91,6 +94,7 @@ class MovieDetailsActivity : AppCompatActivity() {
             releaseDate.text = releaseDateExtra
             overview.text = overViewExtra
             homepage = homepageExtra
+            posterUrl = posterPath
     }
 
     private fun getMovieTrailer(id: String) {
@@ -103,8 +107,20 @@ class MovieDetailsActivity : AppCompatActivity() {
 
     private fun onMovieTrailerFetched(trailer: List<Trailer>)
     {
-//        Log.d("Trailer", trailer.get(0).key)
-        shareTrailer = "https://www.youtube.com/embed/${trailer[0].key}"
+        if (trailer.isNotEmpty()) {
+            shareTrailer = "https://www.youtube.com/embed/${trailer[0].key}"
+
+            watchTrailer.visibility = View.VISIBLE
+
+            watchTrailer.setOnClickListener {
+                val intent = Intent(this, MovieTrailerActivity::class.java)
+                intent.putExtra(MOVIE_ID, id)
+                intent.putExtra(MOVIE_TITLE, title.text)
+                startActivity(intent)
+            }
+        }else {
+            watchTrailer.visibility = View.INVISIBLE
+        }
     }
 
     private fun onError() {
@@ -144,23 +160,70 @@ class MovieDetailsActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.share_button -> {
-                val sharingIntent = Intent(Intent.ACTION_SEND)
-                sharingIntent.type = "*/*"
-
                 val shareBody = "Title: ${title.text}" +
                         "\nRelease Date: ${releaseDate.text}\n" +
                         "Rating: ${rating.rating}\n\n" +
                         "Overview: ${overview.text}\n\n\n" +
                         "Official Site: $homepage \n\n\n" +
                         "Watch Trailer here: $shareTrailer"
-                val shareSubject = "${title.text}"
-                sharingIntent.putExtra(Intent.EXTRA_TEXT, shareBody)
+                val shareTitle = "${title.text}"
 
-                sharingIntent.putExtra(Intent.EXTRA_SUBJECT, shareSubject)
-                startActivity(Intent.createChooser(sharingIntent, "Share using"))
+                if (homepage.isBlank() && shareTrailer.isBlank()){
+                    doSocialShare(shareTitle, shareBody, "")
+                }
+                else if (homepage.isBlank()){
+                    doSocialShare(shareTitle, shareBody, shareTrailer)
+                }
+                else{
+                    doSocialShare(shareTitle, shareBody, homepage)
+                }
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+        @SuppressLint("QueryPermissionsNeeded")
+        private fun doSocialShare(title: String?, text: String?, url: String?) {
+        val targetedShareIntents: MutableList<Intent> = ArrayList()
+        val shareIntent = Intent(Intent.ACTION_SEND)
+        shareIntent.type = "text/plain"
+
+        shareIntent.putExtra(Intent.EXTRA_TITLE, title)
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, title)
+        shareIntent.putExtra(Intent.EXTRA_TEXT, url)
+        shareIntent.putExtra(Intent.EXTRA_TEXT, text)
+        val resInfo = packageManager.queryIntentActivities(shareIntent, 0)
+        if (resInfo.isNotEmpty()) {
+            for (info in resInfo) {
+                val targetedShare = Intent(Intent.ACTION_SEND)
+                targetedShare.type = "text/plain"
+                targetedShare.setPackage(info.activityInfo.packageName.lowercase(Locale.getDefault()))
+                targetedShareIntents.add(targetedShare)
+            }
+            val intentPick = Intent()
+            intentPick.action = Intent.ACTION_PICK_ACTIVITY
+
+            intentPick.putExtra(Intent.EXTRA_TITLE, "SHARE $title")
+            intentPick.putExtra(Intent.EXTRA_INTENT, shareIntent)
+            intentPick.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetedShareIntents.toTypedArray())
+
+            this.startActivityForResult(intentPick, myPick)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == myPick) {
+            if (data?.component != null && !TextUtils.isEmpty(
+                    data.component!!.flattenToShortString()
+                )
+            ) {
+                val appName: String = data.component!!.flattenToShortString()
+                Log.d("SELECTED", appName)
+
+                startActivity(data)
+            }
+        }
     }
 
     private fun searchMovie(searchQuery: String) {
